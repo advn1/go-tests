@@ -3,6 +3,7 @@ package tests
 import (
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 )
 
@@ -29,17 +30,17 @@ func TestNameHandler_TableDriven(t *testing.T) {
 		expectedCode int
 	} {
 		{"Name = Someone", "Someone", "Hello, Someone", 200},
-		{" Name = \"\"", "", "Hello, Who", 200},
+		{" Name = empty", "", "Hello, Who", 200},
 		{" Name = 1231 1234", "1231 1234", "Hello, 1231 1234", 200},
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run(tt.testName, func(t *testing.T) {
 			if tt.name == "" {
 				tt.name = "Who" //default for empty name
 			}
 
-			req := httptest.NewRequest("GET", "/name?name="+tt.name, nil)
+			req := httptest.NewRequest("GET", "/name?name="+url.QueryEscape(tt.name), nil)
 			w := httptest.NewRecorder()
 
 			NameHandler(w,req)
